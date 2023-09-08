@@ -39,11 +39,26 @@ There are a few benefits of this approach:
 
 ## Implementation
 
-- All platform-specific code is sequested away in a `platforms/` directory.
-- For small examples like this, one `.c` file and one `.h` file exist for each platform (`windows.c`, `windows.h`, `posix.c`, `posix.h`).
-- For larger projects, a subdirectory of `platforms/` for each platform would be used (i.e `platforms/windows/io.c`)
+So what does the actual solution look like?
+
+```c
+
+void my_cross_platform_function() {
+    platform_function();
+}
+```
+
+- All platform-specific code is in a `platforms/` directory.
+    - For small examples like this, one `.c` file and one `.h` file exist for each platform (`windows.c`, `windows.h`, `posix.c`, `posix.h`).
+    - For larger projects, a subdirectory of `platforms/` for each platform would be used (i.e `platforms/windows/io.c`)
     - This makes it clear that **all** other code in the project is cross-platform. All the platform-specific weirdness is contained to `platforms/`. 
 - For each platform where platform-specific code is required, a `platform_myfunc()` is created in each platforms source-file. 
 - A cross-platform wrapper function is created that makes a call to `platform_myfunc()`, called `myfunc()`.
-- At compile time, the build system determines the host platform, and include only the source files from `platforms/` for the host platform. 
+- At compile time, the build system determines the host platform, and include only the source files from `platforms/` for the host platform.
+  ```meson
+  # Check if the target system is Windows.
+  if host_machine.system() == 'windows'
+      sources += 'src/platforms/windows.c'
+  else
+  ```
 - The compiler and linker resolve `platform_myfunc()`, and a cross-platform function called `myfunc()` is available that can be called.
