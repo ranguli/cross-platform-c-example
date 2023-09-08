@@ -1,16 +1,19 @@
-project('cross-platform-c-example', 'c',
-        default_options: ['warning_level=everything'])
+project('cross-platform-c-example', 'c', default_options: ['warning_level=everything', 'c_std=c99'])
 
 # Compiler flags
 add_global_arguments('-Wpedantic', language: 'c')
 
-srcs = files(
-  'platforms/windows.c',
-  'platforms/posix.c',
-  'sleep.c',
-  'main.c'
+sources = files(
+    'src/sleep.c',
+    'src/main.c'
 )
 
-# Define executable
-executable('example', srcs, include_directories: '.')
+# Check if the target system is Windows.
+if host_machine.system() == 'windows'
+  sources += 'src/platforms/windows.c'
+else
+  sources += 'src/platforms/posix.c'
+endif
 
+# Define executable
+executable('example', sources, include_directories: ['src'])
